@@ -1,3 +1,4 @@
+# Grafica.py
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton
@@ -10,37 +11,62 @@ class Grafica(QWidget):
         super().__init__(parent)
 
         self.comunicacion = ComunicacionSerial("/dev/ttyACM0", 9600)
-        self.comunicacion.conectar()
 
         self.layout = QVBoxLayout(self)
-        self.canvas = FigureCanvas(plt.Figure())
-        self.layout.addWidget(self.canvas)
+        
+        self.canvas_A0 = FigureCanvas(plt.Figure())
+        self.layout.addWidget(self.canvas_A0)
+        self.ax_A0 = self.canvas_A0.figure.add_subplot(111)
+        self.line_A0, = self.ax_A0.plot([], [], label='A0')
+        self.ax_A0.legend()
 
-        self.ax = self.canvas.figure.add_subplot(111)
-        self.line, = self.ax.plot([], [], label='Datos Arduino')
-        self.ax.legend()
+        self.canvas_A1 = FigureCanvas(plt.Figure())
+        self.layout.addWidget(self.canvas_A1)
+        self.ax_A1 = self.canvas_A1.figure.add_subplot(111)
+        self.line_A1, = self.ax_A1.plot([], [], label='A1')
+        self.ax_A1.legend()
 
-        self.animation = animation.FuncAnimation(self.canvas.figure, self.actualizar_grafica, blit=False, interval=100)
+        self.btn_conectar = QPushButton('Conectar', self)
+        self.btn_conectar.clicked.connect(self.conectar_desconectar)
+        self.layout.addWidget(self.btn_conectar)
 
-        self.btn_iniciar = QPushButton('Iniciar', self)
-        self.btn_iniciar.clicked.connect(self.iniciar_animacion)
-        self.layout.addWidget(self.btn_iniciar)
+        self.conectado = False
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.actualizar_graficas)
 
-    def iniciar_animacion(self):
-        self.animation.event_source.start()
+    def conectar_desconectar(self):
+        if not self.conectado:
+            self.comunicacion.conectar()
+            self.btn_conectar.setText('Desconectar')
+            self.timer.start(100)
+        else:
+            self.comunicacion.desconectar()
+            self.btn_conectar.setText('Conectar')
+            self.timer.stop()
 
-    def actualizar_grafica(self,frame):
-        datos = self.comunicacion.recibir_datos()
-        if datos:
-            valor = float(datos)
-            x = list(self.line.get_xdata())
-            y = list(self.line.get_ydata())
+        self.conectado = not self.conectado
 
-            x.append(len(x))
-            y.append(valor)
+    def actualizar_graficas(self):
+        datos_A0 = self.comunicacion.recibir_datos()
+        datos_A1 = self.comunicacion.recibir_datos()
 
-            self.line.set_data(x, y)
-            self.ax.relim()
-            self.ax.autoscale_view()
-            return self.line
-        QTimer.singleShot(0, self.actualizar_grafica)
+        if datos_A0 and datos_A1:
+            valor_A0 = float(datos_A0)
+            valor_A1 = float(datos_A1)
+
+            self.actualizar_grafica(self.line_A0, self.ax_A0, valor_A0)
+            self.actualizar_grafica(self.line_A1, self.ax_A1, valor_A1)
+
+    def actualizar_grafica(self, line, ax, valor):
+        x = list(line.get_xdata())
+        y = list(line.get_ydata())
+
+        x.append(len(x))
+        y.append(valor)
+
+        line.set_data(x, y)
+        ax.relim()
+        ax.autoscale_view()
+        self.canvas_A0.draw()  # Agrega esta línea para redibujar la gráfica
+        self.canvas_A1.draw()  # Agrega esta línea para redibujar la gráfica
+

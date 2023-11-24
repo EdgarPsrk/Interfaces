@@ -1,3 +1,4 @@
+# ComunicacionSerial.py
 import serial
 import time
 
