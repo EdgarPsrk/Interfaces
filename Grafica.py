@@ -10,10 +10,9 @@ class Grafica(QWidget):
         super().__init__(parent)
 
         self.comunicacion = ComunicacionSerial("/dev/ttyACM0", 9600)
-        #------------------
         self.comunicacion.conectar()
 
-        self.layout = QVBoxLayout(self)
+        self.layout_vertical = QVBoxLayout(self)
         self.layout_horizontal = QHBoxLayout()
         
         self.canvas_A0 = FigureCanvas(plt.Figure())
@@ -28,12 +27,22 @@ class Grafica(QWidget):
         self.line_A1, = self.ax_A1.plot([], [], label='A1')
         self.ax_A1.legend()
 
+        # self.slider = QSlider(Qt.Horizontal)
+        # self.layout_horizontal.addWidget(self.slider)
+
         # Agrega el layout de las gráficas al layout principal
-        self.layout.addLayout(self.layout_horizontal) 
+        self.layout_vertical.addLayout(self.layout_horizontal) 
+
+        self.slider_uno = QSlider(Qt.Horizontal)
+        self.layout_vertical.addWidget(self.slider_uno)
+
+        self.slider_dos = QSlider(Qt.Horizontal)
+        self.layout_vertical.addWidget(self.slider_dos)
 
         self.btn_conectar = QPushButton('Conectar', self)
         self.btn_conectar.clicked.connect(self.conectar_desconectar)
-        self.layout.addWidget(self.btn_conectar)
+        self.layout_vertical.addWidget(self.btn_conectar)
+
         self.btn_conectar.setStyleSheet("""
             background-color: #CD5C5C;
             color: black;
@@ -68,6 +77,10 @@ class Grafica(QWidget):
             self.timer.stop()
 
         self.conectado = not self.conectado
+
+    def controlador_led(self,valor):
+        valor_str = str(valor)
+        self.comunicacion.enviar_datos(valor_str)
 
     def actualizar_graficas(self):
         datos_A0 = self.comunicacion.recibir_datos()
