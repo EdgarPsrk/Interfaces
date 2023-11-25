@@ -1,6 +1,5 @@
 # ComunicacionSerial.py
 import serial
-import time
 
 class ComunicacionSerial:
     def __init__(self, puerto, baudios):
