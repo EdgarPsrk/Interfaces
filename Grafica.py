@@ -14,12 +14,22 @@ class Grafica(QWidget):
 
         self.layout_vertical = QVBoxLayout(self)
         self.layout_horizontal = QHBoxLayout()
-        
+
+
+
+
+        #crea una figura en ellienzo
         self.canvas_A0 = FigureCanvas(plt.Figure())
+        #agrega al layout
         self.layout_horizontal.addWidget(self.canvas_A0)
+        #crea un subplot unico
         self.ax_A0 = self.canvas_A0.figure.add_subplot(111)
+        #define los valores de x & y 
         self.line_A0, = self.ax_A0.plot([], [], label='A0')
+        #agrega la etiqueta de label a la grafica
         self.ax_A0.legend()
+
+
 
         self.canvas_A1 = FigureCanvas(plt.Figure())
         self.layout_horizontal.addWidget(self.canvas_A1)
