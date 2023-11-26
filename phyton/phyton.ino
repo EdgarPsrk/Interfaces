@@ -1,6 +1,7 @@
 // Código del Arduino
 void setup() {
   Serial.begin(9600);
+  pinMode(9,OUTPUT);
 }
 
 void loop() {
@@ -9,7 +10,16 @@ void loop() {
 
   Serial.println(valor_A0);
   delay(100);
-  
+
   Serial.println(valor_A1);
   delay(100);
+
+  if(Serial.available() > 0){
+    String mensaje = Serial.readStringUntil('\n');
+
+    if(mensaje.startsWith("LED:")){
+      int valor_led = mensaje.substring(4).toInt();
+      analogWrite(9,valor_led);
+    }
+  }
 }
