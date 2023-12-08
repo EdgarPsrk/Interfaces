@@ -1,6 +1,6 @@
 # Grafica.py
 import matplotlib.pyplot as plt
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QSlider, QLabel
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QSlider, QLabel,QDial,QLCDNumber
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5.QtCore import QTimer, Qt
 from ComunicacionSerial import ComunicacionSerial
@@ -34,47 +34,96 @@ class Grafica(QWidget):
         self.setGeometry(300, 300, 800, 600)
 
     def inicializar_ui(self):
+#LAYOUT
         self.layout_graficas = QHBoxLayout()
         self.layout_slider_boton = QHBoxLayout()
         self.layout_slider = QVBoxLayout()
         self.layout_boton = QVBoxLayout()
-
-
+        self.layout_lcd = QVBoxLayout()
+#GrAFICAS
         self.inicializar_grafica("A0")
         self.inicializar_grafica("A1")
-
-        self.layout_principal.addLayout(self.layout_graficas)
-
+#BOTONES
         self.btn_conectar = QPushButton('Conectar', self)
         self.btn_conectar.clicked.connect(self.conectar_desconectar)
-        self.layout_boton.addWidget(self.btn_conectar, alignment=Qt.AlignCenter)
         self.btn_conectar.setStyleSheet(f"background-color: {slateGray}; border-radius: 10px; text-align: center;")
         self.btn_conectar.setFixedSize(100, 30)
 
         self.btn_pausar = QPushButton('Pausar', self)
         self.btn_pausar.clicked.connect(self.pausar_graficas)
-        self.layout_boton.addWidget(self.btn_pausar, alignment=Qt.AlignCenter)
         self.btn_pausar.setStyleSheet(f"background-color: {slateGray}; border-radius: 10px; text-align: center;")
         self.btn_pausar.setFixedSize(100, 30)
 
-        self.slider_ledA = QSlider(Qt.Horizontal)
-        self.slider_ledA.setRange(0, 255)
-        self.slider_ledA.valueChanged.connect(self.control_ledA)
-        self.layout_slider.addWidget(self.slider_ledA, alignment=Qt.AlignCenter)
+#DIAL
+        self.dial_ledA = QDial()
+        self.dial_ledA.setRange(0, 255)
+        self.dial_ledA.valueChanged.connect(self.control_ledA)
+        #self.dial_ledA.setFixedSize(100, 30)
 
-        self.valor_sliderA = QLabel('Valor del Slider: 0', self)
-        self.layout_slider.addWidget(self.valor_sliderA, alignment=Qt.AlignCenter)
+        
+        self.valor_dialA = QLCDNumber(self)
+        self.valor_dialA.setFixedSize(100, 30)
+        #self.valor_dialA.setStyleSheet(f"background-color: {slateGray}; border-radius: 10px; text-align: center; color = {violetRed};")
 
-        self.slider_ledB = QSlider(Qt.Horizontal)
-        self.slider_ledB.setRange(0, 255)
-        self.slider_ledB.valueChanged.connect(self.control_ledB)
-        self.layout_slider.addWidget(self.slider_ledB, alignment=Qt.AlignCenter)
 
-        self.valor_sliderB = QLabel('Valor del Otro LED: 0', self)
-        self.layout_slider.addWidget(self.valor_sliderB, alignment=Qt.AlignCenter)
+
+        self.dial_ledB = QDial()
+        self.dial_ledB.setRange(0, 255)
+        self.dial_ledB.valueChanged.connect(self.control_ledB)
+        #self.dial_ledB.setFixedSize(100, 30)
+
+        self.valor_dialB = QLCDNumber(self)
+        self.valor_dialB.setFixedSize(100, 30)
+        #self.valor_dialB.setStyleSheet(f"background-color: {slateGray}; border-radius: 10px; text-align: center; color = {violetRed};")
+
+
+        
+#AGREGANDO
+        self.layout_principal.addLayout(self.layout_graficas)
+
+        self.layout_boton.addWidget(self.btn_conectar, alignment=Qt.AlignBottom | Qt.AlignRight )
+        self.layout_boton.addWidget(self.btn_pausar,   alignment=Qt.AlignBottom | Qt.AlignRight )
+        self.layout_slider.addWidget(self.dial_ledA,   alignment=Qt.AlignBottom | Qt.AlignRight )
+        self.layout_lcd.addWidget(self.valor_dialA,    alignment=Qt.AlignBottom | Qt.AlignLeft )
+        self.layout_slider.addWidget(self.dial_ledB,   alignment=Qt.AlignBottom | Qt.AlignRight )
+        self.layout_lcd.addWidget(self.valor_dialB,    alignment=Qt.AlignBottom | Qt.AlignLeft )
+
+        # self.layout_boton.addWidget(self.btn_conectar, alignment=Qt.AlignCenter )
+        # self.layout_boton.addWidget(self.btn_pausar,   alignment=Qt.AlignCenter )
+        # self.layout_slider.addWidget(self.dial_ledA,   alignment=Qt.AlignCenter )
+        # self.layout_lcd.addWidget(self.valor_dialA,    alignment=Qt.AlignCenter )
+        # self.layout_slider.addWidget(self.dial_ledB,   alignment=Qt.AlignCenter )
+        # self.layout_lcd.addWidget(self.valor_dialB,    alignment=Qt.AlignCenter )
+
+
+
+
+        # self.layout_lcd.setContentsMargins(0,0,0,0)
+        # self.layout_boton.setContentsMargins(0,0,0,0)
+        # self.layout_slider.setContentsMargins(0,0,0,0)
+
+        # self.btn_conectar.setLayout(self.layout_boton)
+        # self.btn_pausar.setLayout(self.layout_boton)
+        # self.dial_ledA.setLayout(self.layout_slider)
+        # self.dial_ledB.setLayout(self.layout_slider)
+        # self.valor_dialA.setLayout(self.layout_lcd)
+        # self.valor_dialB.setLayout(self.layout_lcd)
+
+        # self.layout_slider_boton.addLayout(self.layout_boton)
+        # self.layout_slider_boton.addLayout(self.layout_slider)
+        # self.layout_slider_boton.addLayout(self.layout_lcd)
+        # self.layout_principal.addLayout(self.layout_slider_boton)
+
+        # self.layout_boton.addStretch()
+        # self.layout_slider.addStretch()
+        # self.layout_lcd.addStretch()
+
+
+
 
         self.layout_slider_boton.addLayout(self.layout_boton)
         self.layout_slider_boton.addLayout(self.layout_slider)
+        self.layout_slider_boton.addLayout(self.layout_lcd)
         self.layout_principal.addLayout(self.layout_slider_boton)
 
 
@@ -156,11 +205,11 @@ class Grafica(QWidget):
     def control_ledA(self, valor):
         if isinstance(valor, (int, float)):
             valor = int(valor)
-            self.valor_sliderA.setText(f'Valor del Slider: {valor}')
+            self.valor_dialA.display(valor)
             self.timer_envio_datosA.start(100)
 
     def enviar_datos_timerA(self):
-        valor = self.slider_ledA.value()
+        valor = self.dial_ledA.value()
         self.comunicacion.enviar_datos(f'LED1:{valor}\n')
         self.timer_envio_datosA.stop()
 
@@ -168,11 +217,11 @@ class Grafica(QWidget):
     def control_ledB(self, valor):
         if isinstance(valor, (int, float)):
             valor = int(valor)
-            self.valor_sliderB.setText(f'Valor del Otro LED: {valor}')
+            self.valor_dialB.display(valor)
             self.timer_envio_datosB.start(100)
 
 #enviar datos desde el timer para el led
     def enviar_datos_timerB(self):
-        valor = self.slider_ledB.value()
+        valor = self.dial_ledB.value()
         self.comunicacion.enviar_datos(f'LED2:{valor}\n')
         self.timer_envio_datosB.stop()
